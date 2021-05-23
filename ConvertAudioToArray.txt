@@ -1,0 +1,30 @@
+%%%%%%%
+% Authors: Shreyas Patil, Parth Sarthi Sharma
+% Affiliation: Cornell University
+% Course: ECE 4760
+% Purpose: Week 4 of Final Project
+%%%%%%%
+
+clear all; %Clear all the variables in the workspace
+close all; %Close all the open windows
+clc; %Clear the command prompt
+
+UPPER_RANGE = %Your Upper Range% %Upper range of the desired sample number
+LOWER_RANGE = %Your Upper Range% %Lower range of the desired sample number
+FILE_NAME = %Audio File Name% %Input audio file name
+TEXT_FILE = %Text File Name% %Output text file name 
+BitRate = 8000 %New bitrate
+Range = [LOWER_RANGE, UPPER_RANGE]; %Create the Range parameter
+
+[y, Fs] = audioread(FILE_NAME, Range); %Read the audio file
+yn = resample(y, BitRate, Fs); %Resample the audio to change its bitrate
+ys = yn(:, 1); %Convert dual channel audio to single channel
+yqfinal = rescale(ys, 0, 4095); %Rescale the amplitude
+ysfinal = cast(yqfinal, 'uint16'); %Cast each element to `uint16`
+
+file = fopen(TEXT_FILE, 'w'); %Open the text file in write mode
+for i = 1 : length(ysfinal) %For all the elements of the array
+    yfinal(i) = bitor(ysfinal(i), 0b0011000000000000); %Perform the bitwise or operation to append DAC configuration bits
+    fprintf(file, "%d, ", yfinal(i)); %Print the formatted output to the file
+end
+fclose(file); %Close the file
